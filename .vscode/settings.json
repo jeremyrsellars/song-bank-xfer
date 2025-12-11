@@ -1,0 +1,20 @@
+{
+    "[clojure]": {
+        "editor.wordSeparators": "\t ()\",;~@#$%^&{}[]`",
+        "editor.autoIndent": "full",
+        "editor.useTabStops": false,
+        "files.eol": "\n",
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true
+    },
+
+    // Calva REPL
+    "calva.replConnectSequences": [
+        {"name": "song-import",
+         "projectType": "deps.edn",
+         "projectRootPath": ["song-import"],
+         "autoSelectForJackIn": true,
+         "afterCLJReplJackInCode": "((requiring-resolve 'hashp.install/install!))(doto 'us.sellars.song-transfer.elvanto require in-ns (println 'loaded))",
+         "menuSelections": {"cljAliases": []}}
+    ]
+}

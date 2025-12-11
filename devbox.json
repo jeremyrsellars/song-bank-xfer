@@ -1,0 +1,9 @@
+{
+  "packages": {
+    "clj-kondo": "latest",
+    "cljfmt": "latest",
+    "clojure-lsp": "latest",
+    "clojure": "1.12.1.1561",
+    "jdk": "25+36"
+  }
+}

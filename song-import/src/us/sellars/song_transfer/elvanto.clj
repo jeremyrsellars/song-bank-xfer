@@ -41,22 +41,44 @@
           :wrote/pr-str))
     result))
 
-(def context (us.sellars.job.impl.mem/simple-job-context
-                   {:post-process! #'post-process!}))
-
 (defmethod xf :exclude-status
   [_ excluded-statuses]
   (let [ss (into #{} (cond-> excluded-statuses (not (seq? excluded-statuses)) (vector)))]
     (remove (fn [{:strs [status]}]
               (contains? ss status)))))
 
-(def root-job [:elvanto.job/songs {:xf [:exclude-status 0]
-                                   :directory ["dump" (str (str/replace (re-find #"[-0-9T:]+" (pr-str (java.util.Date.))) ":" "-") "Z")]}])
+(defn do-all-jobs
+  [& jobs]
+  (let [context (us.sellars.job.impl.mem/simple-job-context
+                  {:post-process! #'post-process!})]
+    (doseq [job jobs]
+      (job-proto/add-deferred-job context job))
+    (loop []
+      (when (-> (.-job-queue context) job-proto/peek)
+        (job-proto/execute-1! context)
+        (recur)))
+    context))
 
-(job-proto/add-deferred-job context root-job)
-[(-> (.-job-queue context) job-proto/peek)
- ;@(.-result-ref context)
- @(.-errors-ref context)]
+(comment
+  (def _all-ctx
+    (do-all-jobs
+      [:elvanto.job/songs {:xf [:exclude-status 0]
+                           :directory ["dump" (str (str/replace (re-find #"[-0-9T:]+" (pr-str (java.util.Date.))) ":" "-") "Z")]
+                           :page_size 1000}]))
+  ,)
 
-;; (job-proto/execute-1! context)
-;; (repeatedly 13 #(job-proto/execute-1! context))
+(comment
+  (def context (us.sellars.job.impl.mem/simple-job-context
+                {:post-process! #'post-process!}))
+
+  (def root-job [:elvanto.job/songs {:xf [:exclude-status 0]
+                                     :directory ["dump" (str (str/replace (re-find #"[-0-9T:]+" (pr-str (java.util.Date.))) ":" "-") "Z")]}])
+
+  (job-proto/add-deferred-job context root-job)
+  #p
+  [(-> (.-job-queue context) job-proto/peek)
+   ;@(.-result-ref context)
+   @(.-errors-ref context)]
+
+  #_ (job-proto/execute-1! context)
+  #_ (repeatedly 13 #(job-proto/execute-1! context)))

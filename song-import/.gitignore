@@ -3,5 +3,6 @@
 .cpcache
 .env.local
 .lsp
+.nrepl-port
 dump/
 temp/
